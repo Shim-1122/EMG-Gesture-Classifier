@@ -180,7 +180,7 @@ def write_results(results, sweep, path="results.md"):
                      f"| {r['cross'].mean()*100:.1f} ± {r['cross'].std()*100:.1f} |")
     lines += ["", "| Window (ms) | LDA Within-Subject (%) |", "|---|---|"]
     lines += [f"| {w} | {a.mean()*100:.1f} ± {a.std()*100:.1f} |" for w, a in sweep.items()]
-    Path(path).write_text("\n".join(lines) + "\n")
+    Path(path).write_text("\n".join(lines) + "\n", encoding="utf-8")
     print("\n".join(lines))
 
 

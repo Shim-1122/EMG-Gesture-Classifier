@@ -6,6 +6,7 @@ timestamps, so every recording is resampled onto a uniform time grid before any
 filtering (digital filters assume evenly spaced samples).
 """
 import io
+import ssl
 import urllib.request
 import zipfile
 from pathlib import Path
@@ -28,13 +29,23 @@ GESTURES = {
 }
 
 
+def _ssl_context() -> ssl.SSLContext:
+    """Certificate store for HTTPS. Uses certifi when installed: Python from python.org on macOS does not
+    use the system certificates, so a plain download fails there with CERTIFICATE_VERIFY_FAILED."""
+    try:
+        import certifi
+        return ssl.create_default_context(cafile=certifi.where())
+    except ImportError:
+        return ssl.create_default_context()
+
+
 def download(data_dir: Path = DATA_DIR) -> Path:
     """Download and unzip the dataset on first use. Returns the root folder (one subfolder per subject)."""
     root = Path(data_dir) / "EMG_data_for_gestures-master"
     if not root.exists():
         print(f"Downloading dataset (~17 MB) to {data_dir} ...")
         Path(data_dir).mkdir(parents=True, exist_ok=True)
-        with urllib.request.urlopen(URL) as response:
+        with urllib.request.urlopen(URL, context=_ssl_context()) as response:
             zipfile.ZipFile(io.BytesIO(response.read())).extractall(data_dir)
     return root
 

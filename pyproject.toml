@@ -2,8 +2,10 @@
 name = "emg-gesture-classifier"
 version = "1.0.0"
 description = "Surface EMG hand-gesture recognition with Hudgins features and LDA/SVM/RF classifiers"
-requires-python = ">=3.10"
+requires-python = ">=3.9"
 
 [tool.pytest.ini_options]
 pythonpath = ["."]
 testpaths = ["tests"]
+# matplotlib on Python 3.9 triggers deprecation notices inside the pyparsing library; they are not from this code
+filterwarnings = ["ignore:.*deprecated - use:DeprecationWarning"]
