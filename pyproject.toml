@@ -1,0 +1,9 @@
+[project]
+name = "emg-gesture-classifier"
+version = "1.0.0"
+description = "Surface EMG hand-gesture recognition with Hudgins features and LDA/SVM/RF classifiers"
+requires-python = ">=3.10"
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
