@@ -1,0 +1,4 @@
+# Optional: only needed for run_deep.py (the PyTorch CNN).
+# On Linux, a CPU-only build is much smaller:
+#   pip install torch --index-url https://download.pytorch.org/whl/cpu
+torch>=2.0

@@ -14,6 +14,8 @@ TASKS = [
     dict(key="run", label="Run the full analysis (downloads the 17 MB dataset the first time; about 4 minutes)",
          cmd=["{py}", "run_pipeline.py"], opens=["figures/accuracy_summary.png", "results.md"]),
     dict(key="tests", label="Run the automated tests", cmd=["{py}", "-m", "pytest", "-q"]),
+    dict(key="deep", label="Compare a PyTorch CNN with LDA (installs PyTorch the first time; about 10 minutes)",
+         cmd=["{py}", "run_deep.py"], opens=["figures/cnn_vs_lda.png", "results_deep.md"]),
 ]
 
 # --------------------------------------------------------------------------------------------------
