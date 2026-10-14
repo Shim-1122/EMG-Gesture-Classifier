@@ -2,7 +2,7 @@
 
 ![Tests](https://github.com/Shim-1122/EMG-Gesture-Classifier/actions/workflows/tests.yml/badge.svg)
 
-Classifies 6 hand and wrist gestures from 8-channel forearm surface EMG using Hudgins time-domain features with LDA, SVM, and random forest classifiers. All filtering is causal, so the pipeline uses only data a real-time controller would have.
+Classifies 6 hand and wrist gestures from 8-channel forearm surface EMG using Hudgins time-domain features with LDA, SVM, and random forest classifiers, and compares them with a PyTorch 1D CNN that learns features directly from the filtered signal. All filtering is causal, so the pipeline uses only data a real-time controller would have.
 
 ![Pipeline Stages](figures/pipeline_stages.png)
 
@@ -25,6 +25,23 @@ Classifies 6 hand and wrist gestures from 8-channel forearm surface EMG using Hu
 Largest confusions: radial deviation predicted as wrist extension (13%) and ulnar deviation predicted as wrist flexion (9%). Each pair shares prime movers: extensor carpi radialis longus and brevis drive both radial deviation and extension; flexor carpi ulnaris drives both ulnar deviation and flexion.
 
 ![Confusion Matrix](figures/confusion_matrix.png)
+
+## Deep Learning Comparison (PyTorch)
+
+A small 1D CNN (`emg/deep.py`: three conv blocks, global average pooling, 25,190 parameters) takes the high-pass filtered window itself (8 channels x 40 samples) instead of hand-designed features. It is evaluated on exactly the same windows and splits as LDA.
+
+| Model | Input | Within-Subject (%) | Cross-Subject (%) |
+|---|---|---|---|
+| LDA | 40 Hudgins features | 92.9 ± 5.3 | 80.1 ± 5.2 |
+| 1D CNN (PyTorch) | filtered window, 8 x 40 | 90.6 ± 5.6 | 81.4 ± 4.5 |
+
+- **Cross-subject**, where training data is large (about 23,000 windows from 30 people), the CNN beats LDA by 1.3 points with lower variance across folds.
+- **Within-subject**, with only about 380 training windows per person, LDA still wins by 2.3 points. Hand-designed features are a strong prior when data is scarce, which is why LDA remains the clinical baseline.
+- Inference takes 0.39 ms per window on one CPU thread, well inside the 50 ms window step.
+
+![CNN vs LDA](figures/cnn_vs_lda.png)
+
+Run with `python run_deep.py` (or launcher option 3). PyTorch is optional and listed in `requirements-deep.txt`.
 
 ## Method
 
@@ -120,7 +137,9 @@ emg/
   data.py          download, load, resample to a uniform grid
   preprocess.py    causal filters, linear envelope, windowing
   features.py      Hudgins time-domain features (vectorized)
+  deep.py          PyTorch 1D CNN with a scikit-learn style wrapper
 run_pipeline.py    evaluation, figures, results.md
+run_deep.py        CNN vs. LDA on the same splits, results_deep.md
 tests/
 ```
 
@@ -130,6 +149,7 @@ tests/
 - Thresholds reject low-amplitude noise; flat windows produce finite features
 - High-pass filter removes DC and passes a 40 Hz tone; envelope tracks a burst
 - Windowing never mixes labels; resampling interpolates EMG and holds labels
+- CNN (when PyTorch is installed): output shape, parameter budget, learns separable toy gestures, deterministic with a seed, normalization uses training statistics only
 
 ## Data and License
 
